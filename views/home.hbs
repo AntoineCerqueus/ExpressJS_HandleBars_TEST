@@ -1,7 +1,6 @@
-<form action="" method="get">
-    <input type="text" name = "search" value="{{searchKey}}">
-    <button type="submit">Rechercher</button>
-</form>
+<input id="input-search" type="text" name="search" value="{{searchKey}}">
+<button id="button-search" type="submit">Rechercher</button>
+
 
 <h1>Base de Données ClassicModels</h1>
 
@@ -13,7 +12,7 @@
             <td>Prix</td>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="table-body">
         {{#each products}}
         <tr>
             <td>{{this.productCode}}</td>
@@ -23,3 +22,15 @@
         {{/each}}
     </tbody>
 </table>
+
+{{!-- Specifie le type pour le navigateur ! --}}
+{{!-- Echappement pour eviter conflit entre front et back (c'est sale!) --}}
+<script id="template-products" type="text/handlebars">
+    \{{#each products}}
+        <tr>
+            <td>\{{this.productCode}}</td>
+            <td>\{{this.productName}}</td>
+            <td>\{{this.buyPrice}}</td>
+        </tr>
+    \{{/each}}
+</script>
