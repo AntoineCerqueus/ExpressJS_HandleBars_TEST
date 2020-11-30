@@ -1,7 +1,13 @@
 // Importe les librairies grâce à "require"
 const express = require('express');
 const exphbs = require('express-handlebars');
-const mysql = require('mysql');
+
+
+// Import de la Classe
+const DBManager = require('./db-manager');
+
+// Instanciation de notre Objet
+const dbManager = new DBManager();
 
 // Instancie express
 const app = express();
@@ -19,50 +25,61 @@ app.engine('hbs', exphbs({
 //   res.send('Hello World!');
 // });
 
-const dbConnexion = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'classicmodels'
-});
+// express.static = fonction logiciel pour importer des fichiers static
+app.use(express.static('public'));
 
-dbConnexion.connect(error => {
-  if (error) throw error;
-  console.log("Connecté à la base de donnée");
-});
-
-
-
+console.log('coucou');
 
 app.get('/', function (req, res) {
-  //Défini le type pour le header
+  //Définit le type pour le header
   res.set('Content-Type', 'text/html');
 
   let query = "SELECT * FROM products";
 
-  const search = req.query.search;
-  console.log('Search - ' + search);
-
-  if (search) {
-    query += " where productName like '%" + search + "%' ";
-  }
-
   //Le serveur intercepte la requête
-  dbConnexion.query(query, function (err, results) {
+  dbManager.getDb().query(query, function (err, results) {
     if (err) throw err;
     console.log(results);
 
     res.render('home', {
       products: results,
-      searchKey: search
+    
     });
   });
 });
+
+// Création d'une nouvelle route pour le coté client (ici on cré une requête get)
+app.get('/products', (req, res) => {
+  console.log('toto');
+
+  let query = "SELECT * FROM products";
+
+  const search = req.query.search;
+  // console.log('Search - ' + search);
+
+  if (search) {
+    query += " where productName like '%" + search + "%' ";
+  } else {
+    throw new Error('missing search parameter');
+  }
+  // connexion à la bdd + envoie requete de manière asynchrone // fonction de callback
+  dbManager.getDb().query(query, function (err, results) {
+    if (err) throw err;
+    console.log(results);
+
+    res.send(results);
+  });
+
+
+ 
+})
 
 // Lance le serveur sur "tel" port
 app.listen(port, () => {
   console.log('Le serveur écoute sur le port:' + " " + port)
 
-});
+})
+
+
 
 
